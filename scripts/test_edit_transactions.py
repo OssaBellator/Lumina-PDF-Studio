@@ -44,7 +44,7 @@ def test_text_overflow_appends_page() -> None:
     report = server_v5._add_text_box_with_overflow(document, {
         "type": "add_text_box",
         "page": 0,
-        "rect": [72, 100, 190, 126],
+        "rect": [72, 730, 190, 754],
         "text": long_text,
         "fontFamily": "Helvetica",
         "fontSize": 11,
