@@ -180,6 +180,13 @@ documentEditScript.onload = () => {
       revisionScript.src = './js/document-revision-flex.js';
       revisionScript.async = false;
       revisionScript.onerror = () => flash('Saved PDF revision handling could not be initialised');
+      revisionScript.onload = () => {
+        const reflowScript = document.createElement('script');
+        reflowScript.src = './js/document-reflow.js';
+        reflowScript.async = false;
+        reflowScript.onerror = () => flash('DOCX reflow editing could not be initialised');
+        document.head.appendChild(reflowScript);
+      };
       document.head.appendChild(revisionScript);
     };
     document.head.appendChild(transactionScript);
