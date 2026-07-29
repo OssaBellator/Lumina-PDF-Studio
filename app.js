@@ -165,4 +165,11 @@ const documentEditScript = document.createElement('script');
 documentEditScript.src = './js/document-edit.js';
 documentEditScript.async = false;
 documentEditScript.onerror = () => flash('Document edit mode could not be loaded');
+documentEditScript.onload = () => {
+  const interactionFixScript = document.createElement('script');
+  interactionFixScript.src = './js/document-edit-interaction-fix.js';
+  interactionFixScript.async = false;
+  interactionFixScript.onerror = () => flash('Inline document editing could not be initialised');
+  document.head.appendChild(interactionFixScript);
+};
 document.head.appendChild(documentEditScript);
