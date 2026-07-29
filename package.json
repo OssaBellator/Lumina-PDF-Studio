@@ -1,12 +1,12 @@
 {
   "name": "lumina-pdf-studio",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
-  "description": "Local-first PDF editing, merging, native text and form updates, AI assistance, and export.",
+  "description": "Local-first PDF editing with inline document mode, native text and form updates, AI assistance, merging, and export.",
   "scripts": {
-    "start": "python3 server.py",
+    "start": "python3 server_v2.py",
     "start:static": "python3 -m http.server 4173",
-    "check": "node --check js/core.js && node --check js/editor.js && node --check js/pdf-export.js && node --check js/ai.js && node --check js/native-engine.js && node --check app.js && node scripts/validate.mjs && python3 -m py_compile server.py && python3 scripts/test_engine.py"
+    "check": "node --check js/core.js && node --check js/editor.js && node --check js/pdf-export.js && node --check js/ai.js && node --check js/native-engine.js && node --check js/document-edit.js && node --check app.js && node scripts/validate.mjs && python3 -m py_compile server.py server_v2.py && python3 scripts/test_engine.py && python3 scripts/test_document_edit.py"
   },
   "engines": {
     "node": ">=18"
