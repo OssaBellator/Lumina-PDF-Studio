@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import document_reflow
+import server_v6
 
 
 def fixture_pdf() -> bytes:
@@ -27,12 +28,14 @@ def fixture_pdf() -> bytes:
 
 
 def test_import_model() -> dict:
-    model = document_reflow.pdf_to_document_model(fixture_pdf(), "Worksheet")
+    model = server_v6.normalize_document_model(document_reflow.pdf_to_document_model(fixture_pdf(), "Worksheet"))
     kinds = [block["type"] for block in model["blocks"]]
     assert "heading" in kinds, kinds
     assert "paragraph" in kinds, kinds
     equations = [block for block in model["blocks"] if block["type"] == "equation"]
     assert equations and "-3" in equations[0]["text"] and "-2" in equations[0]["text"], equations
+    lists = [block for block in model["blocks"] if block["type"] == "list_item"]
+    assert lists and lists[0]["text"] == "Explain each step clearly.", lists
     return model
 
 
@@ -48,9 +51,13 @@ def test_docx_and_markdown(model: dict) -> None:
         xml = archive.read("word/document.xml").decode("utf-8")
         assert "Linear Algebra Worksheet" in xml
         assert "Trace" in xml
+        assert "Explain each step clearly." in xml
+        assert "1. Explain each step clearly." not in xml
         assert "w:pageBreakBefore" in xml or 'w:type="page"' in xml
     markdown = document_reflow.model_to_markdown(model)
     assert "#" in markdown and "| Name | Value |" in markdown and "$$" in markdown
+    assert "1. Explain each step clearly." in markdown
+    assert "1. 1. Explain each step clearly." not in markdown
 
 
 def test_pdf_render(model: dict) -> None:
@@ -63,6 +70,7 @@ def test_pdf_render(model: dict) -> None:
         assert "Linear Algebra Worksheet" in text
         assert "bold conclusion" in text
         assert "Trace" in text
+        assert "Explain each step clearly." in text
     finally:
         pdf.close()
 
