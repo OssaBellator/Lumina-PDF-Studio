@@ -103,6 +103,7 @@ class _RunParser(HTMLParser):
                 current["font"] = family.group(1).strip(" '\"")
         elif tag == "br":
             self.runs.append(("\n", dict(current)))
+            return
         self.stack.append(current)
 
     def handle_endtag(self, tag: str) -> None:
@@ -567,7 +568,7 @@ def model_to_fallback_pdf_bytes(model: dict[str, Any]) -> bytes:
             size = float(style.get("fontSize") or 9)
             for row_index, row in enumerate(rows):
                 wrapped = [_wrap_text(str(row[col] if col < len(row) else ""), cell_width - 8, font, size) for col in range(columns)]
-                row_height = max(22.0, max(len(lines) for lines in wrapped) * size * 1.3 + 8)
+                row_height = max(28.0, max(len(lines) for lines in wrapped) * size * 1.45 + 10)
                 ensure_space(row_height)
                 for col, lines in enumerate(wrapped):
                     rect = pymupdf.Rect(margin + col * cell_width, y, margin + (col + 1) * cell_width, y + row_height)
