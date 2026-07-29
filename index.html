@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./css/styles-1.css" />
   <link rel="stylesheet" href="./css/styles-2.css" />
   <link rel="stylesheet" href="./css/styles-3.css" />
+  <link rel="stylesheet" href="./css/styles-native.css" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -23,6 +24,7 @@
       </div>
       <div class="top-actions">
         <button class="button ghost" id="add-pdfs-button"><i data-lucide="files"></i>Add PDFs</button>
+        <button class="button ghost engine-button" id="native-engine-button" data-engine-status="checking" title="Native PDF text and form editing"><span id="native-engine-status-dot" class="engine-status-dot checking"></span><span id="native-engine-status-label">Checking engine</span></button>
         <button class="button ghost" id="ai-button"><i data-lucide="sparkles"></i>AI</button>
         <button class="button primary" id="export-button" disabled><i data-lucide="download"></i>Export PDF</button>
       </div>
@@ -211,6 +213,34 @@
     </div>
   </div>
 
+  <div class="modal-backdrop hidden" id="native-engine-modal">
+    <div class="modal native-modal">
+      <div class="modal-header"><div><h2>Native PDF engine</h2><p>Rewrite source text and update AcroForm fields without flattening them into canvas annotations.</p></div><button class="icon-button" id="close-native-engine"><i data-lucide="x"></i></button></div>
+      <div class="modal-body">
+        <section class="native-overview">
+          <div class="native-source-row"><strong id="native-source-name">No source document</strong><div class="native-source-actions"><button class="button ghost small" id="restore-native-source" disabled><i data-lucide="undo-2"></i>Restore source</button><button class="button ghost small" id="refresh-native-analysis"><i data-lucide="refresh-cw"></i>Inspect again</button></div></div>
+          <div class="native-summary" id="native-analysis-summary"><div class="native-empty">Open a PDF to inspect its structure.</div></div>
+          <div class="native-warning hidden" id="native-signature-warning"><i data-lucide="badge-alert"></i><span>This source contains a digital signature or signature policy. Native mutations are blocked because rewriting the PDF would invalidate that signature.</span></div>
+        </section>
+        <section class="native-panel">
+          <h3>Replace existing text</h3>
+          <p>Finds real text in the PDF content, redacts it, and inserts replacement text into the same area. Complex typography may require manual adjustment.</p>
+          <label>Find text<input id="native-search-text" placeholder="Exact text in the PDF" /></label>
+          <label>Replacement<textarea id="native-replacement-text" rows="3" placeholder="New text"></textarea></label>
+          <div class="native-grid"><label>Scope<select id="native-page-scope"><option value="current">Current source page</option><option value="all">All source pages</option></select></label><label>Matches<select id="native-occurrence"><option value="all">All matches</option><option value="first">First match per page</option></select></label></div>
+          <div class="native-actions"><button class="button primary" id="native-replace-button">Replace text</button></div>
+        </section>
+        <section class="native-panel">
+          <h3>Interactive form fields</h3>
+          <p>Updates the PDF's native AcroForm widgets so fields remain editable in compatible PDF viewers.</p>
+          <div class="native-form-list" id="native-form-list"><div class="native-empty">Inspect a PDF to load its fields.</div></div>
+          <div class="native-actions"><button class="button primary" id="native-save-forms" disabled>Save field values</button></div>
+        </section>
+        <div class="native-operation-report" id="native-operation-report" role="status"></div>
+      </div>
+    </div>
+  </div>
+
   <input id="pdf-input" type="file" accept="application/pdf,.pdf" multiple hidden />
   <input id="image-input" type="file" accept="image/png,image/jpeg" hidden />
   <div id="drop-overlay" class="drop-overlay hidden"><i data-lucide="files"></i><b>Drop PDFs to merge</b><span>They will be appended to the workspace.</span></div>
@@ -224,6 +254,7 @@
   <script src="./js/editor.js"></script>
   <script src="./js/pdf-export.js"></script>
   <script src="./js/ai.js"></script>
+  <script src="./js/native-engine.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
