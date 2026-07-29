@@ -47,6 +47,7 @@ def main() -> None:
     assert any(item["kind"] == "image" and item["dataUrl"] for item in layout["objects"])
 
     text_object = next(item for item in layout["objects"] if item.get("text", "").startswith("Solve"))
+    original_text = text_object["text"]
     image_object = next(item for item in layout["objects"] if item["kind"] == "image")
     svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="220" height="80"><text x="8" y="55" font-size="34">x + y = 2</text></svg>'
     svg_url = "data:image/svg+xml;base64," + base64.b64encode(svg).decode("ascii")
@@ -57,7 +58,7 @@ def main() -> None:
             "page": 0,
             "sourceRect": text_object["rect"],
             "targetRect": text_object["rect"],
-            "originalText": text_object["text"],
+            "originalText": original_text,
             "replacement": "Solve",
             "fontXref": text_object["style"]["fontXref"],
             "fontSize": text_object["style"]["fontSize"],
@@ -107,6 +108,8 @@ def main() -> None:
     first_text = result[0].get_text()
     second_text = result[1].get_text()
     assert "Solve" in first_text
+    assert first_text.count("Solve") == 1, first_text
+    assert original_text not in first_text, first_text
     assert "This answer is inserted" in first_text
     assert "Continued solution" in second_text
     assert len(result[0].get_images(full=True)) >= 1
