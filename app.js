@@ -170,6 +170,13 @@ documentEditScript.onload = () => {
   interactionFixScript.src = './js/document-edit-interaction-fix.js';
   interactionFixScript.async = false;
   interactionFixScript.onerror = () => flash('Inline document editing could not be initialised');
+  interactionFixScript.onload = () => {
+    const transactionScript = document.createElement('script');
+    transactionScript.src = './js/document-edit-transactions.js';
+    transactionScript.async = false;
+    transactionScript.onerror = () => flash('Transactional document editing could not be initialised');
+    document.head.appendChild(transactionScript);
+  };
   document.head.appendChild(interactionFixScript);
 };
 document.head.appendChild(documentEditScript);
