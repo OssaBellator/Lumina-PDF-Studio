@@ -3,6 +3,52 @@
 
   if (typeof replaceSourceDocumentBytes !== 'function' || window.__luminaFlexibleRevisionReplacement) return;
 
+  const clone = (value) => structuredClone(value);
+
+  function relevantObjectState(object) {
+    return {
+      kind: object.kind,
+      rect: object.rect,
+      text: object.text,
+      latex: object.latex,
+      dataUrl: object.dataUrl,
+      style: object.style,
+      deleted: Boolean(object.deleted),
+      rotation: Number(object.rotation) || 0,
+    };
+  }
+
+  function storeParagraphText(object, text) {
+    const documentEditor = window.LuminaDocumentEditor?.state;
+    if (!documentEditor || !object) return;
+    object.text = text;
+    if (object.isNew) documentEditor.added.set(object.id, clone(object));
+    else if (object.original && JSON.stringify(relevantObjectState(object)) === JSON.stringify(object.original)) {
+      documentEditor.changes.delete(object.id);
+    } else {
+      documentEditor.changes.set(object.id, clone(object));
+    }
+    const index = documentEditor.currentObjects.findIndex((item) => item.id === object.id);
+    if (index >= 0) documentEditor.currentObjects[index] = clone(object);
+  }
+
+  function preserveEditableParagraphs(event) {
+    const content = event.target.closest?.('.document-text-content[contenteditable="true"]');
+    if (!content) return;
+    queueMicrotask(() => {
+      const documentEditor = window.LuminaDocumentEditor?.state;
+      const objectId = content.closest('[data-object-id]')?.dataset.objectId;
+      const object = documentEditor?.currentObjects.find((item) => item.id === objectId)
+        || documentEditor?.added.get(objectId)
+        || documentEditor?.changes.get(objectId);
+      if (!object) return;
+      const text = String(content.innerText ?? content.textContent ?? '')
+        .replace(/\r/g, '')
+        .replace(/\u00a0/g, ' ');
+      storeParagraphText(object, text);
+    });
+  }
+
   async function replaceSourceDocumentBytesAcrossPageCounts(documentState, bytes) {
     if (!documentState) throw new Error('The source PDF is no longer available.');
     const previousPageCount = Number(documentState.pdfjs?.numPages || 0);
@@ -51,10 +97,12 @@
     return documentState;
   }
 
+  document.addEventListener('input', preserveEditableParagraphs);
   replaceSourceDocumentBytes = replaceSourceDocumentBytesAcrossPageCounts;
   window.__luminaFlexibleRevisionReplacement = true;
   window.LuminaFlexibleRevisionReplacement = {
-    version: '1.0.0',
+    version: '1.1.0',
     replace: replaceSourceDocumentBytesAcrossPageCounts,
+    preserveEditableParagraphs,
   };
 })();
