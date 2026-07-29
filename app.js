@@ -96,7 +96,7 @@ function bindEvents() {
   $$('#provider-grid button').forEach((button) => button.addEventListener('click', () => selectProvider(button.dataset.provider)));
   $('#save-ai-settings').addEventListener('click', saveAISettings);
   $('#test-ai').addEventListener('click', testAIConnection);
-  $('#send-ai').addEventListener('click', sendAIMessage);
+  $('#send-ai').addEventListener('click', () => sendAIMessage());
   el.aiPrompt.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') sendAIMessage(); });
   $('#ai-context-button').addEventListener('click', () => {
     state.aiUseDocument = !state.aiUseDocument;
