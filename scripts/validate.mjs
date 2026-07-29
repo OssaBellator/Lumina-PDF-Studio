@@ -10,6 +10,7 @@ const jsFiles = await Promise.all([
 ].map((name) => readFile(new URL(name, import.meta.url), 'utf8')));
 const app = jsFiles.at(-1);
 const server = await readFile(new URL('../server_v3.py', import.meta.url), 'utf8');
+const transportServer = await readFile(new URL('../server_v4.py', import.meta.url), 'utf8');
 const css = cssFiles.join('\n');
 const js = jsFiles.join('\n');
 
@@ -40,8 +41,11 @@ for (const required of [
 ]) {
   if (!server.includes(`def ${required}`)) failures.push(`server_v3.py is missing ${required}`);
 }
-if (packageJson.scripts.start !== 'python3 server_v3.py') failures.push('npm start must launch server_v3.py');
-if (packageJson.version !== '2.3.0') failures.push('package version must be 2.3.0');
+for (const required of ['is_client_disconnect_error', 'QuietLuminaHandler']) {
+  if (!transportServer.includes(required)) failures.push(`server_v4.py is missing ${required}`);
+}
+if (packageJson.scripts.start !== 'python3 server_v4.py') failures.push('npm start must launch server_v4.py');
+if (packageJson.version !== '2.3.1') failures.push('package version must be 2.3.1');
 
 if (failures.length) {
   console.error(failures.join('\n'));
