@@ -6,7 +6,7 @@
   "scripts": {
     "start": "python3 server_v5.py",
     "start:static": "python3 -m http.server 4173",
-    "check": "node --check js/core.js && node --check js/editor.js && node --check js/pdf-export.js && node --check js/ai.js && node --check js/native-engine.js && node --check js/document-edit.js && node --check js/document-edit-interaction-fix.js && node --check js/document-edit-transactions.js && node --check app.js && node scripts/validate.mjs && node scripts/test_inline_edit_interaction.mjs && node scripts/test_edit_transactions.mjs && python3 -m py_compile server.py server_v2.py server_v3.py server_v4.py server_v5.py && python3 scripts/test_engine.py && python3 scripts/test_document_edit.py && python3 scripts/test_rich_edit.py && python3 scripts/test_disconnect_handling.py && python3 scripts/test_edit_transactions.py"
+    "check": "node --check js/core.js && node --check js/editor.js && node --check js/pdf-export.js && node --check js/ai.js && node --check js/native-engine.js && node --check js/document-edit.js && node --check js/document-edit-interaction-fix.js && node --check js/document-edit-transactions.js && node --check js/document-revision-flex.js && node --check app.js && node scripts/validate.mjs && node scripts/test_inline_edit_interaction.mjs && node scripts/test_edit_transactions.mjs && python3 -m py_compile server.py server_v2.py server_v3.py server_v4.py server_v5.py && python3 scripts/test_engine.py && python3 scripts/test_document_edit.py && python3 scripts/test_rich_edit.py && python3 scripts/test_disconnect_handling.py && python3 scripts/test_edit_transactions.py"
   },
   "engines": {
     "node": ">=18"
