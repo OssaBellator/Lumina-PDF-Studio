@@ -184,12 +184,20 @@ documentEditScript.onload = () => {
         const reflowScript = document.createElement('script');
         reflowScript.src = './js/document-reflow.js';
         reflowScript.async = false;
-        reflowScript.onerror = () => flash('DOCX reflow editing could not be initialised');
+        reflowScript.onerror = () => flash('Legacy DOCX reflow editing could not be initialised');
         reflowScript.onload = () => {
+          const loadHybrid = () => {
+            const hybridScript = document.createElement('script');
+            hybridScript.src = './js/hybrid-edit.js';
+            hybridScript.async = false;
+            hybridScript.onerror = () => flash('Smart Edit could not be initialised');
+            document.head.appendChild(hybridScript);
+          };
           const recoveryScript = document.createElement('script');
           recoveryScript.src = './js/document-reflow-recovery.js';
           recoveryScript.async = false;
-          recoveryScript.onerror = () => flash('DOCX render recovery could not be initialised');
+          recoveryScript.onerror = () => { flash('Legacy DOCX render recovery could not be initialised'); loadHybrid(); };
+          recoveryScript.onload = loadHybrid;
           document.head.appendChild(recoveryScript);
         };
         document.head.appendChild(reflowScript);
