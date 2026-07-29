@@ -175,6 +175,13 @@ documentEditScript.onload = () => {
     transactionScript.src = './js/document-edit-transactions.js';
     transactionScript.async = false;
     transactionScript.onerror = () => flash('Transactional document editing could not be initialised');
+    transactionScript.onload = () => {
+      const revisionScript = document.createElement('script');
+      revisionScript.src = './js/document-revision-flex.js';
+      revisionScript.async = false;
+      revisionScript.onerror = () => flash('Saved PDF revision handling could not be initialised');
+      document.head.appendChild(revisionScript);
+    };
     document.head.appendChild(transactionScript);
   };
   document.head.appendChild(interactionFixScript);
