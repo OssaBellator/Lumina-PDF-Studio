@@ -185,6 +185,13 @@ documentEditScript.onload = () => {
         reflowScript.src = './js/document-reflow.js';
         reflowScript.async = false;
         reflowScript.onerror = () => flash('DOCX reflow editing could not be initialised');
+        reflowScript.onload = () => {
+          const recoveryScript = document.createElement('script');
+          recoveryScript.src = './js/document-reflow-recovery.js';
+          recoveryScript.async = false;
+          recoveryScript.onerror = () => flash('DOCX render recovery could not be initialised');
+          document.head.appendChild(recoveryScript);
+        };
         document.head.appendChild(reflowScript);
       };
       document.head.appendChild(revisionScript);
