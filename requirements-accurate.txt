@@ -1,0 +1,5 @@
+-r requirements.txt
+# Optional local document-understanding pipeline for Smart Edit Accurate mode.
+# Docling supplies typed layout items, reading order, tables, OCR, formulas,
+# bounding boxes, and source provenance. The first run downloads model assets.
+docling>=2.70,<3

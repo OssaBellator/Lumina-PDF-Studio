@@ -161,6 +161,16 @@ function init() {
 aiConfig = loadAIConfig();
 init();
 
+function loadHybridEditor() {
+  if (window.LuminaHybridEditor || document.querySelector('script[data-lumina-hybrid]')) return;
+  const hybridScript = document.createElement('script');
+  hybridScript.src = './js/hybrid-edit.js';
+  hybridScript.async = false;
+  hybridScript.dataset.luminaHybrid = 'true';
+  hybridScript.onerror = () => flash('Smart Edit could not be initialised');
+  document.head.appendChild(hybridScript);
+}
+
 const documentEditScript = document.createElement('script');
 documentEditScript.src = './js/document-edit.js';
 documentEditScript.async = false;
@@ -184,12 +194,13 @@ documentEditScript.onload = () => {
         const reflowScript = document.createElement('script');
         reflowScript.src = './js/document-reflow.js';
         reflowScript.async = false;
-        reflowScript.onerror = () => flash('DOCX reflow editing could not be initialised');
+        reflowScript.onerror = () => { flash('Legacy DOCX reflow editing could not be initialised'); loadHybridEditor(); };
         reflowScript.onload = () => {
           const recoveryScript = document.createElement('script');
           recoveryScript.src = './js/document-reflow-recovery.js';
           recoveryScript.async = false;
-          recoveryScript.onerror = () => flash('DOCX render recovery could not be initialised');
+          recoveryScript.onerror = () => { flash('Legacy DOCX render recovery could not be initialised'); loadHybridEditor(); };
+          recoveryScript.onload = loadHybridEditor;
           document.head.appendChild(recoveryScript);
         };
         document.head.appendChild(reflowScript);
