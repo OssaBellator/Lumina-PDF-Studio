@@ -1,0 +1,13 @@
+{
+  "name": "lumina-pdf-studio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Local-first PDF editing, merging, annotation, AI assistance, and export.",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "check": "node --check js/core.js && node --check js/editor.js && node --check js/pdf-export.js && node --check js/ai.js && node --check app.js && node scripts/validate.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
