@@ -6,6 +6,7 @@ import argparse
 import base64
 import json
 import mimetypes
+import re
 from http import HTTPStatus
 from http.server import ThreadingHTTPServer
 from typing import Any
@@ -16,6 +17,26 @@ import server_v3 as rich
 import server_v5 as transactions
 
 ENGINE_VERSION = "0.5.0"
+_LIST_PREFIX = re.compile(r"^\s*(?:[-*•]|\d+[.)]|[A-Za-z][.)])\s+")
+
+
+def normalize_document_model(model: dict[str, Any]) -> dict[str, Any]:
+    """Remove source list markers when the document model already stores list semantics."""
+    normalized = json.loads(json.dumps(model))
+    for block in normalized.get("blocks") or []:
+        if block.get("type") != "list_item":
+            continue
+        text = str(block.get("text") or "")
+        match = _LIST_PREFIX.match(text)
+        if not match:
+            continue
+        original_html = str(block.get("html") or "")
+        if original_html and original_html != reflow._escape_text(text):
+            continue
+        clean = text[match.end():].strip()
+        block["text"] = clean
+        block["html"] = reflow._escape_text(clean)
+    return normalized
 
 
 class LuminaReflowHandler(transactions.LuminaTransactionalHandler):
@@ -69,7 +90,7 @@ class LuminaReflowHandler(transactions.LuminaTransactionalHandler):
                     raise core.EngineError('Multipart field "file" is required.', code="missing_file")
                 title_part = parts.get("title")
                 title = (title_part or {}).get("data", b"Document").decode("utf-8", errors="replace") or "Document"
-                model = reflow.pdf_to_document_model(pdf_part["data"], title=title)
+                model = normalize_document_model(reflow.pdf_to_document_model(pdf_part["data"], title=title))
                 self._json(HTTPStatus.OK, {
                     "model": model,
                     "markdown": reflow.model_to_markdown(model),
@@ -88,6 +109,7 @@ class LuminaReflowHandler(transactions.LuminaTransactionalHandler):
                 model = payload.get("model")
                 if not isinstance(model, dict):
                     raise core.EngineError('JSON field "model" is required.', code="missing_model")
+                model = normalize_document_model(model)
                 result = reflow.render_document_model(model, prefer_office=bool(payload.get("preferOffice", True)))
                 self._json(HTTPStatus.OK, {
                     "pdfBase64": base64.b64encode(result["pdf"]).decode("ascii"),
