@@ -160,3 +160,9 @@ function init() {
 
 aiConfig = loadAIConfig();
 init();
+
+const documentEditScript = document.createElement('script');
+documentEditScript.src = './js/document-edit.js';
+documentEditScript.async = false;
+documentEditScript.onerror = () => flash('Document edit mode could not be loaded');
+document.head.appendChild(documentEditScript);
