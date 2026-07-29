@@ -75,7 +75,7 @@ The current engine supports:
 - Native text insertion into a specified PDF rectangle through the API.
 - Grouping adjacent mathematical fragments into a larger equation or matrix region.
 - Automatic continuation-page fallback for text that cannot fit safely in its requested area.
-- Up to twenty in-memory source revisions per imported document, available to edit-mode undo and redo.
+- Up to ten in-memory source revisions per imported document, available to edit-mode undo and redo.
 
 Text replacement is implemented as PDF redaction followed by new page-content insertion in the selected region. This removes the selected source text from the content seen by normal PDF readers instead of merely painting a white rectangle over it. The engine preserves the detected font size, colour, and embedded font where practical and falls back to a compatible PDF font when required.
 
