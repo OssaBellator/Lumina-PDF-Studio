@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d0f15" />
+  <meta name="description" content="Lumina PDF Studio — local-first PDF editing, merging, AI assistance, and export." />
+  <title>Lumina PDF Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles-1.css" />
+  <link rel="stylesheet" href="./css/styles-2.css" />
+  <link rel="stylesheet" href="./css/styles-3.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">L</span><span>Lumina <b>PDF Studio</b></span></div>
+      <div class="document-meta">
+        <input id="workspace-name" value="Untitled workspace" aria-label="Workspace name" />
+        <span id="save-state">Local workspace</span>
+      </div>
+      <div class="top-actions">
+        <button class="button ghost" id="add-pdfs-button"><i data-lucide="files"></i>Add PDFs</button>
+        <button class="button ghost" id="ai-button"><i data-lucide="sparkles"></i>AI</button>
+        <button class="button primary" id="export-button" disabled><i data-lucide="download"></i>Export PDF</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="left-panel">
+        <div class="panel-heading">
+          <div><strong>Pages</strong><span id="page-count-label">0 pages</span></div>
+          <button class="icon-button" id="add-blank-button" title="Add blank page"><i data-lucide="file-plus-2"></i></button>
+        </div>
+        <div class="document-strip" id="document-strip"></div>
+        <div id="thumbnail-list" class="thumbnail-list"></div>
+        <div class="left-footer">
+          <button class="button full" id="merge-button"><i data-lucide="combine"></i>Merge more PDFs</button>
+          <button class="button full subtle" id="export-selected-button" disabled><i data-lucide="scissors"></i>Export selected pages</button>
+        </div>
+      </aside>
+
+      <section class="editor-shell">
+        <div class="toolbar" id="toolbar">
+          <div class="tool-group">
+            <button class="tool active" data-tool="select" title="Select (V)"><i data-lucide="mouse-pointer-2"></i><span>Select</span></button>
+            <button class="tool" data-tool="hand" title="Pan (H)"><i data-lucide="hand"></i></button>
+          </div>
+          <div class="tool-separator"></div>
+          <div class="tool-group scrollable">
+            <button class="tool" data-tool="text" title="Add text (T)"><i data-lucide="type"></i><span>Text</span></button>
+            <button class="tool" data-tool="whiteout" title="Whiteout / replace text"><i data-lucide="eraser"></i><span>Whiteout</span></button>
+            <button class="tool" data-tool="highlight" title="Highlight (M)"><i data-lucide="highlighter"></i></button>
+            <button class="tool" data-tool="draw" title="Draw (P)"><i data-lucide="pencil"></i></button>
+            <button class="tool" data-tool="rectangle" title="Rectangle"><i data-lucide="square"></i></button>
+            <button class="tool" data-tool="comment" title="Comment (C)"><i data-lucide="message-square-plus"></i></button>
+            <button class="tool" id="image-tool" title="Place image"><i data-lucide="image-plus"></i></button>
+          </div>
+          <div class="tool-separator"></div>
+          <div class="tool-group">
+            <button class="tool" id="undo-button" disabled title="Undo"><i data-lucide="undo-2"></i></button>
+            <button class="tool" id="redo-button" disabled title="Redo"><i data-lucide="redo-2"></i></button>
+            <button class="tool" id="search-button" title="Search (Ctrl/Cmd+F)"><i data-lucide="search"></i></button>
+          </div>
+        </div>
+
+        <div class="search-popover hidden" id="search-popover">
+          <div class="search-row">
+            <i data-lucide="search"></i>
+            <input id="search-input" placeholder="Search extracted PDF text" />
+            <button class="icon-button" id="run-search"><i data-lucide="arrow-right"></i></button>
+            <button class="icon-button" id="close-search"><i data-lucide="x"></i></button>
+          </div>
+          <div id="search-results" class="search-results"></div>
+        </div>
+
+        <div class="welcome" id="welcome">
+          <div class="welcome-glow"></div>
+          <div class="welcome-card">
+            <span class="welcome-icon"><i data-lucide="file-stack"></i></span>
+            <span class="eyebrow">Local-first document workspace</span>
+            <h1>Edit, combine, and understand PDFs.</h1>
+            <p>Open several PDFs at once, rearrange pages, place editable content directly on the page, and use your preferred cloud or local AI.</p>
+            <div class="welcome-actions">
+              <button class="button primary large" id="welcome-open"><i data-lucide="folder-open"></i>Open PDFs</button>
+              <button class="button ghost large" id="sample-button"><i data-lucide="wand-sparkles"></i>Try sample</button>
+            </div>
+            <div class="feature-grid">
+              <div><i data-lucide="combine"></i><b>Merge anything</b><span>Append and reorder pages from many PDFs.</span></div>
+              <div><i data-lucide="pen-tool"></i><b>Edit on canvas</b><span>Text, whiteout, shapes, images, and markup.</span></div>
+              <div><i data-lucide="bot"></i><b>Bring your AI</b><span>OpenRouter, OpenAI/Codex, LM Studio, Ollama, or custom.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="viewport" class="viewport hidden">
+          <div id="page-stage" class="page-stage tool-select">
+            <canvas id="pdf-canvas"></canvas>
+            <svg id="annotation-layer" class="annotation-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+          </div>
+        </div>
+
+        <div class="bottom-bar hidden" id="bottom-bar">
+          <button class="icon-button" id="prev-page"><i data-lucide="chevron-left"></i></button>
+          <div class="page-input-wrap"><input id="page-input" type="number" min="1" value="1" /><span id="page-total">/ 0</span></div>
+          <button class="icon-button" id="next-page"><i data-lucide="chevron-right"></i></button>
+          <span class="divider"></span>
+          <button class="icon-button" id="zoom-out"><i data-lucide="minus"></i></button>
+          <button class="zoom-button" id="zoom-label">100%</button>
+          <button class="icon-button" id="zoom-in"><i data-lucide="plus"></i></button>
+          <button class="fit-button" id="fit-button">Fit</button>
+        </div>
+      </section>
+
+      <aside class="right-panel" id="right-panel">
+        <div class="right-tabs">
+          <button class="active" data-right-tab="edit">Edit</button>
+          <button data-right-tab="pages">Page</button>
+          <button data-right-tab="ai">AI</button>
+        </div>
+
+        <section class="right-content" data-panel="edit">
+          <div class="empty-inspector" id="empty-inspector"><i data-lucide="mouse-pointer-click"></i><b>Select an edit</b><span>Click an annotation or add content from the toolbar.</span></div>
+          <div id="annotation-inspector" class="hidden">
+            <div class="inspector-section">
+              <label>Selected object</label>
+              <div class="selection-title"><span id="selected-type">Text</span><button class="icon-button danger" id="delete-annotation"><i data-lucide="trash-2"></i></button></div>
+            </div>
+            <div class="inspector-section" id="text-controls">
+              <label for="annotation-text">Content</label>
+              <textarea id="annotation-text" rows="4"></textarea>
+              <div class="two-col"><label>Font size<input id="font-size" type="number" min="6" max="96" /></label><label>Opacity<input id="annotation-opacity" type="number" min="0.1" max="1" step="0.1" /></label></div>
+            </div>
+            <div class="inspector-section">
+              <label>Appearance</label>
+              <div class="color-row" id="color-row">
+                <button data-color="#5d42e8" style="--swatch:#5d42e8"></button><button data-color="#ef476f" style="--swatch:#ef476f"></button><button data-color="#f3c623" style="--swatch:#f3c623"></button><button data-color="#1f8fff" style="--swatch:#1f8fff"></button><button data-color="#111318" style="--swatch:#111318"></button><button data-color="#ffffff" style="--swatch:#ffffff"></button>
+              </div>
+              <div class="two-col"><label>Width<input id="annotation-width" type="number" min="1" max="30" /></label><label>Layer<select id="annotation-layer-order"><option value="front">Front</option><option value="back">Back</option></select></label></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="right-content hidden" data-panel="pages">
+          <div class="inspector-section">
+            <label>Current page</label>
+            <strong id="page-source-name">No document</strong>
+            <span class="muted" id="page-source-meta"></span>
+          </div>
+          <div class="page-actions">
+            <button id="rotate-left"><i data-lucide="rotate-ccw"></i>Rotate left</button>
+            <button id="rotate-right"><i data-lucide="rotate-cw"></i>Rotate right</button>
+            <button id="duplicate-page"><i data-lucide="copy"></i>Duplicate</button>
+            <button id="move-up"><i data-lucide="arrow-up"></i>Move up</button>
+            <button id="move-down"><i data-lucide="arrow-down"></i>Move down</button>
+            <button class="danger" id="delete-page"><i data-lucide="trash-2"></i>Delete page</button>
+          </div>
+          <div class="inspector-section">
+            <label>Page selection</label>
+            <p class="muted">Shift-click thumbnails to select a range. Export selected pages as a separate PDF.</p>
+          </div>
+        </section>
+
+        <section class="right-content hidden" data-panel="ai">
+          <div class="ai-status-card">
+            <span class="ai-orb"><i data-lucide="sparkles"></i></span>
+            <div><b id="provider-label">No AI connected</b><span id="model-label">Configure a provider</span></div>
+            <button class="icon-button" id="ai-settings"><i data-lucide="settings-2"></i></button>
+          </div>
+          <div id="ai-chat" class="ai-chat"><div class="ai-message assistant">Connect a model, then ask about the document or request edits. Proposed edits always enter a review queue before they run.</div></div>
+          <div id="action-queue" class="action-queue hidden"></div>
+          <div class="ai-compose">
+            <textarea id="ai-prompt" rows="3" placeholder="Summarise this document, or add a title to page 1…"></textarea>
+            <div><button class="button ghost small" id="ai-context-button"><i data-lucide="scan-text"></i>Use document</button><button class="button primary small" id="send-ai"><i data-lucide="send"></i>Send</button></div>
+          </div>
+          <div class="permission-note"><i data-lucide="shield-check"></i><span>AI can only use enabled Lumina tools. Destructive actions require approval.</span></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="ai-modal">
+    <div class="modal">
+      <div class="modal-header"><div><h2>AI connection</h2><p>Use a cloud provider or a local OpenAI-compatible server.</p></div><button class="icon-button" id="close-ai-modal"><i data-lucide="x"></i></button></div>
+      <div class="modal-body">
+        <div class="provider-grid" id="provider-grid">
+          <button data-provider="openrouter"><b>OpenRouter</b><span>Many hosted models</span></button>
+          <button data-provider="openai"><b>OpenAI / Codex</b><span>OpenAI API models</span></button>
+          <button data-provider="lmstudio"><b>LM Studio</b><span>Local server</span></button>
+          <button data-provider="ollama"><b>Ollama</b><span>Local server</span></button>
+          <button data-provider="custom"><b>Custom</b><span>OpenAI-compatible</span></button>
+        </div>
+        <div class="settings-form">
+          <label>Base URL<input id="ai-base-url" /></label>
+          <label>Model<input id="ai-model" placeholder="Model ID" /></label>
+          <label>API key <span>(stored only for this browser session)</span><input id="ai-key" type="password" autocomplete="off" /></label>
+          <div class="connection-row"><button class="button ghost" id="test-ai"><i data-lucide="plug-zap"></i>Test connection</button><span id="connection-result"></span></div>
+        </div>
+        <div class="tool-permissions">
+          <div><h3>Agent permissions</h3><p>Models may propose these actions. Every proposal remains reviewable.</p></div>
+          <label><input type="checkbox" data-ai-tool="read_document" checked />Read extracted text</label>
+          <label><input type="checkbox" data-ai-tool="add_content" checked />Add text, comments, highlights, shapes</label>
+          <label><input type="checkbox" data-ai-tool="organize_pages" checked />Reorder, rotate, duplicate pages</label>
+          <label><input type="checkbox" data-ai-tool="delete_pages" />Delete pages</label>
+          <label><input type="checkbox" data-ai-tool="export_pdf" />Trigger PDF export</label>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="button ghost" id="cancel-ai-settings">Cancel</button><button class="button primary" id="save-ai-settings">Save connection</button></div>
+    </div>
+  </div>
+
+  <input id="pdf-input" type="file" accept="application/pdf,.pdf" multiple hidden />
+  <input id="image-input" type="file" accept="image/png,image/jpeg" hidden />
+  <div id="drop-overlay" class="drop-overlay hidden"><i data-lucide="files"></i><b>Drop PDFs to merge</b><span>They will be appended to the workspace.</span></div>
+  <div id="loading-overlay" class="loading-overlay hidden"><span class="spinner"></span><b id="loading-label">Working…</b></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="./js/core.js"></script>
+  <script src="./js/editor.js"></script>
+  <script src="./js/pdf-export.js"></script>
+  <script src="./js/ai.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
